@@ -4,7 +4,7 @@ namespace VCComponent\Laravel\Order\Actions\Cart;
 
 use Illuminate\Support\Facades\Cookie;
 use VCComponent\Laravel\Order\Actions\CartItem\CreateCartItemAction;
-use VCComponent\Laravel\Order\Facades\Cart;
+use VCComponent\Laravel\Order\Entities\Cart;
 
 class CreateCartAction
 {
@@ -22,7 +22,7 @@ class CreateCartAction
     public function execute(array $data = [])
     {
         $cart = Cart::create([
-            'id' => Cart::generateUuid(),
+            'uuid' => Cart::generateUuid(),
         ]);
 
         if (count($data)) {

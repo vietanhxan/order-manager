@@ -4,7 +4,7 @@ namespace VCComponent\Laravel\Order\Http\Controllers\Api\Admin;
 
 use Complex\Exception;
 use Illuminate\Http\Request;
-use VCComponent\Laravel\Order\Facades\Order;
+use VCComponent\Laravel\Order\Entities\Order;
 use VCComponent\Laravel\Order\Repositories\OrderItemRepository;
 use VCComponent\Laravel\Order\Transformers\OrderItemTransformer;
 use VCComponent\Laravel\Order\Validators\OrderItemValidator;
@@ -37,8 +37,8 @@ class OrderItemController extends ApiController
         $this->validator->isValid($request, 'RULE_ADMIN_UPDATE');
 
         $this->repository->findById($id);
-        $orderItem = $this->repository->whereId($id)->first();
-        $product   = Product::whereId($orderItem->product_id)->first();
+        $orderItem = $this->repository->where('id', $id)->first();
+        $product   = Product::where('id', $orderItem->product_id)->first();
         $quantity  = $request->get('quantity');
 
         if ($product->quantity < $quantity) {
@@ -63,6 +63,7 @@ class OrderItemController extends ApiController
         }
         $order->total = $totalPrice;
         $order->save();
+
         return $this->response->item($orderItem, new $this->transformer);
     }
 

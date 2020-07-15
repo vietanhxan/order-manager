@@ -6,7 +6,7 @@ use VCComponent\Laravel\Order\Entities\Cart;
 
 class CalculateCartTotalAction
 {
-    public function execute(Cart $cart): Cart
+    public function execute(Cart $cart)
     {
         $total = $cart->calculateTotal();
 

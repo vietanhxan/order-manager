@@ -4,16 +4,14 @@ namespace VCComponent\Laravel\Order\Repositories;
 
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
-use VCComponent\Laravel\Order\Entities\Order;
-use VCComponent\Laravel\Order\Entities\OrderItem;
-use VCComponent\Laravel\Order\Repositories\OrderRepository;
-use VCComponent\Laravel\Product\Entities\Product;
+use VCComponent\Laravel\Order\Entities\OrderMail;
+use VCComponent\Laravel\Order\Repositories\OrderMailRepository;
 use VCComponent\Laravel\Vicoders\Core\Exceptions\NotFoundException;
 
 /**
  * Class AccountantRepositoryEloquent.
  */
-class OrderRepositoryEloquent extends BaseRepository implements OrderRepository
+class OrderMailRepositoryEloquent extends BaseRepository implements OrderMailRepository
 {
     /**
      * Specify Model class name
@@ -22,7 +20,7 @@ class OrderRepositoryEloquent extends BaseRepository implements OrderRepository
      */
     public function model()
     {
-        return Order::class;
+        return OrderMail::class;
     }
 
     public function getEntity()
@@ -30,6 +28,9 @@ class OrderRepositoryEloquent extends BaseRepository implements OrderRepository
         return $this->model;
     }
 
+    /**
+     * Boot up the repository, pushing criteria
+     */
     public function boot()
     {
         $this->pushCriteria(app(RequestCriteria::class));
@@ -39,7 +40,7 @@ class OrderRepositoryEloquent extends BaseRepository implements OrderRepository
     {
         $order = $this->model->find($id);
         if (!$order) {
-            throw new NotFoundException('Order');
+            throw new NotFoundException('Mail');
         }
         return $order;
     }
@@ -47,14 +48,7 @@ class OrderRepositoryEloquent extends BaseRepository implements OrderRepository
     public function updateStatus($request, $id)
     {
         $updateStatus            = $this->find($id);
-        $updateStatus->status_id = $request->input('status');
+        $updateStatus->status = $request->input('status');
         $updateStatus->save();
-    }
-
-    public function paymentStatus($request, $id)
-    {
-        $paymentStatus                 = $this->find($id);
-        $paymentStatus->payment_status = $request->input('payment_status');
-        $paymentStatus->save();
     }
 }

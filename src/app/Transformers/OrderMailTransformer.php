@@ -1,11 +1,11 @@
-P<?php
+<?php
 
 namespace VCComponent\Laravel\Order\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use VCComponent\Laravel\Order\Entities\Cart;
+use VCComponent\Laravel\Order\Entities\Order;
 
-class CartTransformer extends TransformerAbstract
+class OrderMailTransformer extends TransformerAbstract
 {
     protected $availableIncludes = [];
 
@@ -14,14 +14,15 @@ class CartTransformer extends TransformerAbstract
         $this->setDefaultIncludes($includes);
     }
 
-    public function transform(Cart $model)
+    public function transform($model)
     {
         return [
-            'id'         => (int) $model->uuid,
-            'total'      => (int) $model->total,
+            'id'         => (int) $model->id,
+            'email'      => $model->email,
+            'status'     => $model->status,
             'timestamps' => [
                 'created_at' => $model->created_at,
-                'updated_at' => $model->updated_at,
+                'updqted_at' => $model->updated_at,
             ],
         ];
     }

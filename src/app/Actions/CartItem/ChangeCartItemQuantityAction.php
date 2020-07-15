@@ -4,7 +4,7 @@ namespace VCComponent\Laravel\Order\Actions\CartItem;
 
 use VCComponent\Laravel\Order\Actions\CartItem\CalculateCartItemAmountAction;
 use VCComponent\Laravel\Order\Actions\Cart\CalculateCartTotalAction;
-use VCComponent\Laravel\Order\Facades\CartItem;
+use VCComponent\Laravel\Order\Entities\CartItem;
 
 class ChangeCartItemQuantityAction
 {

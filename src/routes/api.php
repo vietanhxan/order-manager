@@ -8,11 +8,12 @@ $api->version('v1', function ($api) {
         $api->put("/orders/{id}/status", "VCComponent\Laravel\Order\Http\Controllers\Api\Admin\OrderController@updateStatus");
         $api->put("/order_item/{id}/product", "VCComponent\Laravel\Order\Http\Controllers\Api\Admin\OrderItemController@update");
         $api->delete("/order_item/{id}/product", "VCComponent\Laravel\Order\Http\Controllers\Api\Admin\OrderItemController@destroy");
-        $api->get("/orders/{id}/sendMailOrder", "VCComponent\Laravel\Order\Http\Controllers\Api\Admin\OrderController@sendMailOrderSuccess");
+
+        $api->put("orderMails/{id}/status", "VCComponent\Laravel\Order\Http\Controllers\Api\Admin\OrderMailController@updateStatus");
+        $api->resource("orderMails", "VCComponent\Laravel\Order\Http\Controllers\Api\Admin\OrderMailController");
     });
-    $api->put("/cart_item/{id}/quantity","VCComponent\Laravel\Order\Http\Controllers\Api\Fontend\Cart\CartItemController@changeQuantity");
+    $api->put("/cart_item/{id}/quantity", "VCComponent\Laravel\Order\Http\Controllers\Api\Fontend\Cart\CartItemController@changeQuantity");
     $api->get('/users/{id}/orders', 'VCComponent\Laravel\Order\Http\Controllers\Api\Fontend\OrderController@index');
     $api->get('/orders/{id}', 'VCComponent\Laravel\Order\Http\Controllers\Api\Fontend\OrderController@show');
     $api->post('/orders', 'VCComponent\Laravel\Order\Http\Controllers\Api\Fontend\OrderController@store');
 });
-

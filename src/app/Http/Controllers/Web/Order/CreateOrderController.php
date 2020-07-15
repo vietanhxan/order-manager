@@ -4,10 +4,13 @@ namespace VCComponent\Laravel\Order\Http\Controllers\Web\Order;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use VCComponent\Laravel\Order\Actions\Order\CreateOrderAction;
-use VCComponent\Laravel\Order\Facades\Cart;
-use VCComponent\Laravel\Order\Facades\Order;
+use VCComponent\Laravel\Order\Entities\Cart;
+use VCComponent\Laravel\Order\Entities\Order;
+use VCComponent\Laravel\Order\Entities\OrderMail;
+use VCComponent\Laravel\Order\Mail\MailNotify;
 use VCComponent\Laravel\Payment\Actions\PaymentAction;
 
 class CreateOrderController extends BaseController
@@ -47,7 +50,14 @@ class CreateOrderController extends BaseController
             'cart_id'        => $request->input('cart_id'),
         ];
 
+        if ($request->has(['district', 'provine'])) {
+            $data['district'] = $request->input('district');
+            $data['provine']  = $request->input('provine');
+        }
+
         $order = $this->create_order->execute($data);
+
+        $this->sendMailOrder($order);
 
         if ($request['payment_method'] !== 1) {
             return $this->payment->excute($order);
@@ -72,14 +82,25 @@ class CreateOrderController extends BaseController
 
         $messages = '';
 
-        if ($payment_response->status_code == false) {
+        if ($payment_response->status_code === false) {
             $order->update(['payment_status' => 4]);
         } else {
             $order->update(['payment_status' => 2]);
         }
 
-        Cart::where('id', $payment_response->cart_id)->delete();
+        Cart::where('uuid', $payment_response->cart_id)->delete();
 
         return view('order::orderAlert');
+    }
+
+    public function sendMailOrder($order)
+    {
+        $email_noti = OrderMail::whereStatus(1)->get();
+
+        foreach ($email_noti as $email) {
+            Mail::to($email->email)->queue(new MailNotify($order));
+        }
+
+        return $order;
     }
 }

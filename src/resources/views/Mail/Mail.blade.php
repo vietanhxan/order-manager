@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Đặt hàng thành công</title>
+        <title>Có đơn hàng mới</title>
     </head>
     <style type="text/css">
     td,th {
@@ -11,17 +11,9 @@
     }
     </style>
     <body>
-        <h1><p> Xin chào @if($order->username)
-            {{ $order->username }}
-            @elseif($order->email)
-            {{  $order->email }}
-            @else
-            {{ $order->phone_number }}
-            @endif
-        ! </p></h1>
+        <h1><p>ĐƠN HÀNG MỚI !</p></h1>
         <br>
-        <p>Bạn đã đặt hàng thành công !</p>
-        <p>Dưới đây là thông tin đơn hàng của bạn :</p>
+        <p>Thông tin đơn hàng :</p>
         <br>
         <table>
             <thead>

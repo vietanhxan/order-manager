@@ -34,8 +34,7 @@ class OrderController extends ApiController
         $query = $this->applyOrderByFromRequest($query, $request);
 
         $per_page = $request->has('per_page') ? (int) $request->get('per_page') : 15;
-
-        $order = $query->where('user_id', $id)->paginate($per_page);
+        $order    = $query->where('user_id', $id)->paginate($per_page);
 
         return $this->response->paginator($order, new $this->transformer);
     }
@@ -49,8 +48,7 @@ class OrderController extends ApiController
         $query = $this->applyOrderByFromRequest($query, $request);
 
         $per_page = $request->has('per_page') ? (int) $request->get('per_page') : 15;
-
-        $order = $query->where('user_id', $id)->paginate($per_page);
+        $order    = $query->where('user_id', $id)->paginate($per_page);
 
         return $this->response->paginator($order, new $this->transformer);
     }
@@ -60,54 +58,111 @@ class OrderController extends ApiController
         $this->validator->isValid($request, 'RULE_ADMIN_CREATE');
 
         $data = $request->all();
+
         if ($request->has('order_items')) {
             unset($data['order_items']);
         }
 
-        $order = $this->repository->firstOrCreate($data);
+        $order = $this->repository->where($data)->first();
+
+        if ($order) {
+            throw new \Exception("Order này đã tồn tại", 1);
+        }
 
         if ($request->has('order_items')) {
-            $data             = $request->get('order_items');
-            $data['order_id'] = $order->id;
 
             $product_ids = collect($request->get('order_items'))->pluck('product_id');
             $products    = Product::whereIn('id', $product_ids)->get();
 
-            if (!$products->count()) {
-                throw new \Exception("Sản phẩm không tồn tại", 1);
+            $product_exists = array_values(array_diff($product_ids->toArray(), $products->pluck('id')->toArray()));
+
+            if ($product_exists !== []) {
+                throw new \Exception("Sản phẩm có id = {$product_exists[0]} không tồn tại", 1);
             }
 
             foreach ($request->get('order_items') as $value) {
                 $product = $products->first(function ($item, $key) use ($value) {
                     return $item->id == $value['product_id'];
                 });
+
                 if ($product->quantity < $value['quantity']) {
                     throw new \Exception("Sản phẩm {$product->name} không đủ số lượng", 1);
                 }
             }
 
-            $total = $order->total;
+            $order = $this->repository->create($data);
+
+            $total = 0;
             foreach ($request->get('order_items') as $value) {
                 $product = $products->first(function ($item, $key) use ($value) {
                     return $item->id == $value['product_id'];
                 });
-                $order_item             = new OrderItem;
-                $order_item->order_id   = $order->id;
-                $order_item->product_id = $product->id;
-                $order_item->price      = $product->price;
-                $order_item->quantity   = $value['quantity'];
-                $order_item->save();
+
+                $orderItem = OrderItem::where('product_id', $product->id)->where('order_id', $order->id)->first();
+
+                $amount_price     = $product->price;
+                $total_attributes = 0;
+                if(isset($value['attributes_value'])) {
+                    $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
+
+                    foreach ($attribute_unique as $attribute_item) {
+                        $attribute_chose = $product->attributesValue->search(function ($q) use ($attribute_item) {
+                            return $q->id === $attribute_item['value_id'];
+                        });
+
+                        if($attribute_chose !== false) {
+                            $attributes_exists = $product->attributesValue->get($attribute_chose);
+                            if ($attributes_exists->type === 2) {
+                                $total_attr = - $attributes_exists->price;
+                            } else if ($attributes_exists->type === 3) {
+                                $total_attr = 0;
+                            } else {
+                                $total_attr = $attributes_exists->price;
+                            }
+                            $total_attributes += $total_attr;
+                        } else {
+                            throw new \Exception('Thuộc tính có id = '. $attribute_item['value_id'] .' không tồn tại !', 1);
+                        }
+                    }
+                }
+
+                $amount_price += $total_attributes;
+
+                if ($orderItem) {
+                    $orderItem->update(['quantity' => $value['quantity']]);
+                } else {
+                    $order_item             = new OrderItem;
+                    $order_item->order_id   = $order->id;
+                    $order_item->product_id = $product->id;
+                    $order_item->price      = $amount_price;
+                    $order_item->quantity   = $value['quantity'];
+                    $order_item->save();
+                }
+
+                if(isset($value['attributes_value'])) {
+                    $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
+                    foreach ($attribute_unique as $item) {
+                        $attribute_item                = new OrderProductAttribute;
+                        $attribute_item->order_item_id = $order_item->id;
+                        $attribute_item->product_id    = $product->id;
+                        $attribute_item->value_id      = $item['value_id'];
+                        $attribute_item->save();
+                    }
+                }
 
                 $product->quantity -= (int) $value['quantity'];
                 $product->sold_quantity += (int) $value['quantity'];
                 $product->save();
 
-                $calcualator = $product->price * $value['quantity'];
+                $calcualator = $amount_price * $value['quantity'];
                 $total += (int) $calcualator;
             }
+
             $order->total = $total;
             $order->save();
         }
+
+        $this->entity->sendMailOrder($order);
 
         return $this->response->item($order, new $this->transformer);
     }

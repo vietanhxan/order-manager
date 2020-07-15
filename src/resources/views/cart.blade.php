@@ -1,4 +1,4 @@
-<section class="cart col-12 col-12 col-md-6 col-lg-8 col-xl-9" id="cart">
+<section class="cart" id="cart">
     <div>
         <div class="d-flex justify-content-between main-header">
             <div class="text-uppercase cart-title">giỏ hàng</div>
@@ -15,6 +15,9 @@
                     <tr>
                         <th scope="col">STT</th>
                         <th scope="col">Tên sản phẩm </th>
+                        @if($attributeItemsCount)
+                        <th scope="col">Thuộc tính</th>
+                        @endif
                         <th scope="col">Số lượng</th>
                         <th scope="col" width="10%">Đơn giá </th>
                         <th scope="col">Thành tiền</th>
@@ -31,6 +34,13 @@
                                 <div class="col-12 col-md-10 col-lg-9 col-xl-10 mt-2 ">{!! $cartItem->product->name !!}</div>
                             </div>
                         </td>
+                        @if($attributeItemsCount)
+                        <td scope="col">
+                            @foreach($cartItem->itemAttributes as $attribute_value)
+                            <div class="text-capitalize">{{$attribute_value->attributeValue->attribute->name}} : {{ $attribute_value->attributeValue->label }}</div>
+                            @endforeach
+                        </td>
+                        @endif
                         <td class="table-form-input">
                             <input id="cart-item-quantity" class="cart-quantity" data-id="{!! $cartItem->id !!}" name="quantity" value="{!! $cartItem->quantity !!}" type="number" min="1">
                         </td>

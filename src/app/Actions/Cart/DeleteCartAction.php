@@ -3,7 +3,7 @@
 namespace VCComponent\Laravel\Order\Actions\Cart;
 
 use VCComponent\Laravel\Order\Actions\CartItem\DeleteCartItemAction;
-use VCComponent\Laravel\Order\Facades\Cart;
+use VCComponent\Laravel\Order\Entities\Cart;
 
 class DeleteCartAction
 {
@@ -16,7 +16,7 @@ class DeleteCartAction
 
     public function execute(string $id): void
     {
-        $cart = Cart::findOrFail($id);
+        $cart = Cart::where('uuid', $id)->first();
         if ($cart->cartItems->count()) {
             $cart->cartItems->each(function ($item) {
                 $this->deleteItemAction->execute($item->id);

@@ -4,8 +4,7 @@ namespace VCComponent\Laravel\Order\Http\Controllers\Api\Fontend\Cart;
 
 use Illuminate\Http\Request;
 use VCComponent\Laravel\Order\Actions\CartItem\ChangeCartItemQuantityAction;
-use VCComponent\Laravel\Order\Facades\Cart;
-use VCComponent\Laravel\Order\Facades\CartItem;
+use VCComponent\Laravel\Order\Entities\Cart;
 use VCComponent\Laravel\Order\Repositories\CartItemRepository;
 use VCComponent\Laravel\Order\Validators\CartItemValidator;
 use VCComponent\Laravel\Product\Entities\Product;
@@ -19,6 +18,7 @@ class CartItemController extends ApiController
     public function __construct(CartItemRepository $repository, CartItemValidator $validator, ChangeCartItemQuantityAction $action)
     {
         $this->repository = $repository;
+        $this->entity     = $repository->getEntity();
         $this->validator  = $validator;
         $this->action     = $action;
     }
@@ -34,20 +34,20 @@ class CartItemController extends ApiController
             'quantity' => $request->input('quantity'),
         ];
 
-        $cartItem = CartItem::findOrFail($id);
-        $cart     = Cart::where('id', $cartItem->cart_id)->first();
+        $cartItem = $this->entity->findOrFail($id);
+        $cart     = Cart::where('uuid', $cartItem->cart_id)->first();
         $product  = Product::where('id', $cartItem->product_id)->first();
 
         $error = '';
 
         if ($product->quantity < $request->input('quantity')) {
-            $error = 'Số lượng của sản phẩm '. $product->name .' đã đạt đến giới hạn ! Bạn vẫn có thể đặt hàng nhưng với số lượng tối đa của sản phẩn này là : '. $product->quantity . ' . Xin lỗi vì sự bất tiện này !';
-            return response()->json(['result' => $cartItem, 'cart' => $cart , 'error' => $error]);
+            $error = 'Số lượng của sản phẩm ' . $product->name . ' đã đạt đến giới hạn ! Bạn vẫn có thể đặt hàng nhưng với số lượng tối đa của sản phẩn này là : ' . $product->quantity . ' . Xin lỗi vì sự bất tiện này !';
+            return response()->json(['result' => $cartItem, 'cart' => $cart, 'error' => $error]);
         }
 
-        $cartItemAfter = $this->action->execute($data);
-        $cartAfter     = Cart::where('id', $cartItem->cart_id)->first();
-        return response()->json(['result' => $cartItemAfter, 'cart' => $cartAfter, 'error' => $error]);
+        $cartItem_after = $this->action->execute($data);
+        $cart_after     = Cart::where('uuid', $cartItem->cart_id)->first();
+        return response()->json(['result' => $cartItem_after, 'cart' => $cart_after, 'error' => $error]);
     }
 
 }

@@ -2,12 +2,16 @@
 
 namespace VCComponent\Laravel\Order\Providers;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use VCComponent\Laravel\Order\Contracts\ViewCartControllerInterface;
 use VCComponent\Laravel\Order\Contracts\ViewOrderControllerInterface;
+use VCComponent\Laravel\Order\Events\AddAttributesEvent;
 use VCComponent\Laravel\Order\Http\Controllers\Web\Cart\CartController;
 use VCComponent\Laravel\Order\Http\Controllers\Web\Order\OrderController;
+use VCComponent\Laravel\Order\Http\Middleware\CheckCart;
+use VCComponent\Laravel\Order\Http\View\Composers\CartAttributesComposer;
 use VCComponent\Laravel\Order\Http\View\Composers\CartComposer;
 use VCComponent\Laravel\Order\Repositories\CartItemRepository;
 use VCComponent\Laravel\Order\Repositories\CartItemRepositoryEloquent;
@@ -15,28 +19,29 @@ use VCComponent\Laravel\Order\Repositories\CartRepository;
 use VCComponent\Laravel\Order\Repositories\CartRepositoryEloquent;
 use VCComponent\Laravel\Order\Repositories\OrderItemRepository;
 use VCComponent\Laravel\Order\Repositories\OrderItemRepositoryEloquent;
+use VCComponent\Laravel\Order\Repositories\OrderMailRepository;
+use VCComponent\Laravel\Order\Repositories\OrderMailRepositoryEloquent;
 use VCComponent\Laravel\Order\Repositories\OrderRepository;
 use VCComponent\Laravel\Order\Repositories\OrderRepositoryEloquent;
-use VCComponent\Laravel\Order\Services\Cart;
-use VCComponent\Laravel\Order\Services\CartItem;
-use VCComponent\Laravel\Order\Services\Order;
+use VCComponent\Laravel\Order\Services\GetCart;
 
 class OrderServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->bind("order", Order::class);
-        $this->app->bind("cart", Cart::class);
-        $this->app->bind("cartItem", CartItem::class);
+        $this->app->bind('getCart', GetCart::class);
         $this->app->bind(OrderRepository::class, OrderRepositoryEloquent::class);
         $this->app->bind(OrderItemRepository::class, OrderItemRepositoryEloquent::class);
         $this->app->bind(CartItemRepository::class, CartItemRepositoryEloquent::class);
         $this->app->bind(CartRepository::class, CartRepositoryEloquent::class);
+        $this->app->bind(OrderMailRepository::class, OrderMailRepositoryEloquent::class);
         $this->registerControllers();
     }
 
-    public function boot()
+    public function boot(Router $router)
     {
+        $router->pushMiddlewareToGroup('web', CheckCart::class);
+
         $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'order');
@@ -50,7 +55,8 @@ class OrderServiceProvider extends ServiceProvider
             __DIR__ . '/../../resources/sass/tick.png'    => public_path('/images/cart/tick.png'),
         ]);
 
-        View::composer('*', CartComposer::class);
+        View::composer(['order::cartIcon', 'order::cart', 'order::orderInfo'], CartComposer::class);
+        View::composer('order::cart', CartAttributesComposer::class);
     }
 
     private function registerControllers()

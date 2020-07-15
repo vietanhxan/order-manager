@@ -3,6 +3,7 @@
 namespace VCComponent\Laravel\Order\Http\View\Composers;
 
 use Illuminate\View\View;
+use VCComponent\Laravel\Order\Entities\CartItem;
 
 class CartComposer
 {
@@ -17,7 +18,6 @@ class CartComposer
         $cart           = getCart();
 
         $cartItemsCount = 0;
-
         if ($cart) {
             $cartItemsCount = $cart->cartItems->count();
         }

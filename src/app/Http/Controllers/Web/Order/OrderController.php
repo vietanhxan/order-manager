@@ -23,7 +23,6 @@ class OrderController extends BaseController implements ViewOrderControllerInter
 
     public function index(Request $request)
     {
-        $type = $this->getTypeOrder($request);
         $cart = getCart();
 
         $cartItemsCount = 0;

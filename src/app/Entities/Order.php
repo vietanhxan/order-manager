@@ -30,7 +30,7 @@ class Order extends Model
 
     public function orderItems()
     {
-        return $this->HasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class);
     }
 
     public function paymentMethod()

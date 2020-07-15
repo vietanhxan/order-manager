@@ -3,7 +3,12 @@
 namespace VCComponent\Laravel\Order\Traits;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use VCComponent\Laravel\Order\Entities\OrderMail;
+use VCComponent\Laravel\Order\Facades\Order;
+use VCComponent\Laravel\Order\Mail\MailNotify;
+use VCComponent\Laravel\Product\Entities\ProductAttribute;
 
 trait Helpers
 {
@@ -30,31 +35,19 @@ trait Helpers
         return $type;
     }
 
-    private function getTypeOrder($request)
-    {
-        if (config('order.models.order') !== null) {
-            $model_class = config('order.models.order');
-        } else {
-            $model_class = \VCComponent\Laravel\Order\Entities\Order::class;
-        }
-        $model      = new $model_class;
-        $orderTypes = $model->orderTypes();
-        $path_items = collect(explode('/', $request->path()));
-        $type       = 'order';
-
-        foreach ($orderTypes as $value) {
-            foreach ($path_items as $item) {
-                if ($value === $item) {
-                    $type = $value;
-                }
-            }
-        }
-
-        return $type;
-    }
-
     public function ableToUse($user)
     {
         return true;
+    }
+
+    public function sendMailOrder($order)
+    {
+        $email_noti = OrderMail::whereStatus(1)->get();
+
+        foreach ($email_noti as $email) {
+            Mail::to($email->email)->queue(new MailNotify($order));
+        }
+
+        return $order;
     }
 }

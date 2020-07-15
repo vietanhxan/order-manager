@@ -24,6 +24,7 @@ class CartController extends BaseController implements ViewCartControllerInterfa
     public function index(Request $request)
     {
         $type = $this->getTypeCart($request);
+
         $cart = getCart();
 
         $custom_view_data = $this->viewData($cart, $request);

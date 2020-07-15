@@ -5,8 +5,11 @@ namespace VCComponent\Laravel\Order\Http\Controllers\Web\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use VCComponent\Laravel\Order\Actions\CartItem\CreateCartItemAction;
-use VCComponent\Laravel\Order\Facades\CartItem;
+use VCComponent\Laravel\Order\Actions\Cart\CreateCartAction;
+use VCComponent\Laravel\Order\Entities\CartItem;
+use VCComponent\Laravel\Order\Entities\CartProductAttribute;
 use VCComponent\Laravel\Product\Entities\Product;
+use VCComponent\Laravel\Product\Entities\ProductAttribute;
 
 class CreateCartItemController extends BaseController
 {
@@ -19,32 +22,35 @@ class CreateCartItemController extends BaseController
 
     public function __invoke(Request $request)
     {
-        $cart_id       = getCart()->getKey();
-        $product_id    = $request->input('product_id');
-        $product_price = $request->input('product_price');
-
-        $result = CartItem::where('cart_id', $cart_id)->where('product_id', $product_id)->first();
-
-        if ($result) {
-            $product = Product::where('id', $product_id)->first();
-            if ($product->quantity == $result->quantity) {
-                $quantity = $result->quantity;
-                $alert    = 'Số lượng sản phẩm ' . $product->name . ' đã đạt giới hạn ! Sản phẩm đang tồn tại trong giỏ hàng với số lượng = '. $result->quantity ." !";
-            } else {
-                $quantity = $result->quantity + $request->input('quantity');
-            }
-        } else {
-            $quantity = $request->input('quantity');
-        }
+        $cart_id       = getCart()->uuid;
+        $product_id    = $request->get('product_id');
+        $product_price = $request->get('product_price');
+        $attributes    = $this->getAttributes($request);
 
         $data = [
             'cart_id'    => $cart_id,
             'product_id' => $product_id,
-            'quantity'   => $quantity,
+            'quantity'   => $request->get('quantity'),
             'price'      => $product_price,
         ];
 
-        $this->action->execute($data);
+        if ($attributes != null) {
+            $data['attributes'] = $attributes;
+            $data['price']      = $this->hasAttributes($data);
+        }
+        $cart_item = $this->action->execute($data, $request);
+
+        if ($attributes != null) {
+            foreach ($attributes as $key => $attribute) {
+                $data_attributes = [
+                    'cart_item_id' => (int) $cart_item->id,
+                    'product_id'   => (int) $request->get('product_id'),
+                    'value_id'     => (int) $attribute,
+                ];
+
+                CartProductAttribute::firstOrCreate($data_attributes);
+            }
+        }
 
         if (isset($alert)) {
             $response = back()->with('error', __($alert));
@@ -56,5 +62,54 @@ class CreateCartItemController extends BaseController
         }
 
         return $response;
+    }
+
+    protected function getAttributes($request)
+    {
+        $data      = $request->all();
+        $cart_data = [
+            'quantity'      => $request->get('quantity'),
+            'product_id'    => $request->get('product_id'),
+            'product_price' => $request->get('product_price'),
+        ];
+
+        if ($request->has('redirect')) {
+            $cart_data['redirect'] = $request->get('redirect');
+        }
+
+        $attributes = array_diff_assoc($data, $cart_data);
+
+        unset($attributes['_token']);
+
+        return $attributes;
+    }
+
+    protected function hasAttributes($data)
+    {
+        $sold_price = $data['price'];
+        if ($data['attributes'] !== null) {
+            $product_attributes = ProductAttribute::select('type', 'price')->where('product_id', $data['product_id'])->whereIn('value_id', $data['attributes'])->get();
+
+            $caculate_attributes_price = $product_attributes->sum(function ($q) {
+                if ($q->type === 2) {
+                    $total = -$q->price;
+                } else if ($q->type === 3) {
+                    $total = 0;
+                } else {
+                    $total = $q->price;
+                }
+                return $total;
+            });
+            $special_price = $product_attributes->sum(function ($q) {
+                return $q->type === 3 ? $q->price : 0;
+            });
+
+            if ($special_price !== 0) {
+                $sold_price = $special_price + $caculate_attributes_price;
+            } else {
+                $sold_price = $data['price'] + $caculate_attributes_price;
+            }
+        }
+        return $sold_price;
     }
 }

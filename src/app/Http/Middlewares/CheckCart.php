@@ -27,8 +27,7 @@ class CheckCart
         }
 
         $cart     = app(CreateCartAction::class)->execute();
-
         $response = $next($request);
-        return $response->withCookie(cookie()->forever('cart', $cart->getKey()));
+        return $response->withCookie(cookie()->forever('cart', $cart->uuid));
     }
 }

@@ -3,12 +3,15 @@
 namespace VCComponent\Laravel\Order\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use VCComponent\Laravel\Order\Entities\CartItem;
 
 class Cart extends Model
 {
+    protected $primaryKey = 'uuid';
+
     protected $fillable = [
-        'id',
+        'uuid',
         'total',
     ];
 
@@ -16,10 +19,9 @@ class Cart extends Model
 
     protected $keyType = 'int';
 
-
     public function cartItems()
     {
-        return $this->hasMany(CartItem::class);
+        return $this->hasMany(CartItem::class, 'cart_id', 'uuid');
     }
 
     public function calculateTotal(): int
@@ -32,5 +34,15 @@ class Cart extends Model
         return [
             'cart',
         ];
+    }
+
+    public function viewCartItems()
+    {
+        return $this->hasMany(CartItem::class, 'cart_id', 'uuid')->with('product', 'itemAttributes');
+    }
+
+    public static function generateUuid()
+    {
+        return Str::uuid()->toString();
     }
 }

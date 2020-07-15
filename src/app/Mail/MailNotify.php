@@ -12,15 +12,13 @@ class MailNotify extends Mailable
     use Queueable, SerializesModels;
 
     public $order;
-    public $email;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($email, $order)
+    public function __construct($order)
     {
-        $this->email = $email;
         $this->order = $order;
     }
 
@@ -31,6 +29,6 @@ class MailNotify extends Mailable
      */
     public function build()
     {
-        return $this->subject('Đặt hàng thành công !')->view('order::Mail.Mail');
+        return $this->subject('Đơn hàng mới !')->view('order::Mail.Mail');
     }
 }
