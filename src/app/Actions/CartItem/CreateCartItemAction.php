@@ -24,7 +24,7 @@ class CreateCartItemAction
     {
         $items = CartItem::where(['cart_id' => $data['cart_id'], 'product_id' => $data['product_id']])->get();
 
-        if ($data['attributes'] && $items->count()) {
+        if (array_key_exists('attributes', $data) && $items->count()) {
 
             $attributes_in_cart = $items->map(function ($q) {
                 return $q->itemAttributes->pluck('value_id')->toArray();
