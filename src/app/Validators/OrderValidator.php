@@ -45,5 +45,9 @@ class OrderValidator extends AbstractValidator
             'product_id' => ['required'],
             'quantity'   => ['required'],
         ],
+        'RULE_EXPORT'                          => [
+            'label'     => ['required'],
+            'extension' => ['required', 'regex:/(^xlsx$)|(^csv$)/'],
+        ],
     ];
 }

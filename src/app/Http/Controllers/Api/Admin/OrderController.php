@@ -1,10 +1,11 @@
 <?php
 
 namespace VCComponent\Laravel\Order\Http\Controllers\Api\Admin;
-
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use VCComponent\Laravel\Mail\Entities\Mail;
+use Illuminate\Support\Facades\DB;
+use VCComponent\Laravel\Export\Services\Export\Export;
 use VCComponent\Laravel\Order\Entities\OrderItem;
 use VCComponent\Laravel\Order\Entities\OrderMail;
 use VCComponent\Laravel\Order\Entities\OrderProductAttribute;
@@ -35,6 +36,69 @@ class OrderController extends ApiController
                 throw new PermissionDeniedException();
             }
         }
+    }
+
+    public function export(Request $request)
+    {
+        $user = $this->getAuthenticatedUser();
+        if (!$this->entity->ableToViewList($user)) {
+            throw new PermissionDeniedException();
+        }
+
+        $this->validator->isValid($request, 'RULE_EXPORT');
+
+        $data   = $request->all();
+        $orders = $this->getReportOrders($request);
+
+        $args = [
+            'data'      => $orders,
+            'label'     => $request->label ? $data['label'] : 'Orders',
+            'extension' => $request->extension ? $data['extension'] : 'Xlsx',
+        ];
+        $export = new Export($args);
+        $url    = $export->export();
+
+        return $this->response->array(['url' => $url]);
+    }
+
+    private function getReportOrders(Request $request)
+    {
+        $fields = [
+            'orders.phone_number as `Số điện thoại`',
+            'orders.email as `Email`',
+            'orders.username as `Tên khách hàng`',
+            'orders.address as `Địa chỉ chi tiết`',
+            'orders.province as `Thành phố`',
+            'orders.district as `Quận/Huyện`',
+            'orders.address as `Địa chỉ chi tiết`',
+            'orders.total as `Tổng giá trị đơn hàng`',
+            'orders.order_note as `Ghi chú`',
+            // 'orders.status as `Trạng thái đơn hàng`',
+            // '(case when status = 1 then "Đã Export"  when export_status = 0 then "Chưa Export" end) as `Trạng Thái Export`',
+            'users.username as `Người tạo`',
+
+        ];
+        $fields = implode(', ', $fields);
+
+        $query = $this->entity;
+        $query = $query->select(DB::raw($fields));
+        $query = $this->applyConstraintsFromRequest($query, $request);
+        $query = $this->applySearchFromRequest($query, ['status'], $request);
+        if ($request->has('status')) {
+            $request->validate([
+                'status' => 'required|regex:/^(\d+\,?)*$/',
+            ]);
+            $status = explode(',', $request->get('status'));
+            $query  = $query->whereIn('status_id', $status);
+        }
+
+        $query = $query->leftJoin('users', function ($join) {
+            $join->on('orders.user_id', '=', 'users.id');
+        });
+
+        $products = $query->get()->toArray();
+
+        return $products;
     }
 
     public function index(Request $request)
@@ -143,7 +207,7 @@ class OrderController extends ApiController
 
                 $amount_price     = $product->price;
                 $total_attributes = 0;
-                if(isset($value['attributes_value'])) {
+                if (isset($value['attributes_value'])) {
                     $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
 
                     foreach ($attribute_unique as $attribute_item) {
@@ -151,10 +215,10 @@ class OrderController extends ApiController
                             return $q->id === $attribute_item['value_id'];
                         });
 
-                        if($attribute_chose !== false) {
+                        if ($attribute_chose !== false) {
                             $attributes_exists = $product->attributesValue->get($attribute_chose);
                             if ($attributes_exists->type === 2) {
-                                $total_attr = - $attributes_exists->price;
+                                $total_attr = -$attributes_exists->price;
                             } else if ($attributes_exists->type === 3) {
                                 $total_attr = 0;
                             } else {
@@ -162,7 +226,7 @@ class OrderController extends ApiController
                             }
                             $total_attributes += $total_attr;
                         } else {
-                            throw new \Exception('Thuộc tính có id = '. $attribute_item['value_id'] .' không tồn tại !', 1);
+                            throw new \Exception('Thuộc tính có id = ' . $attribute_item['value_id'] . ' không tồn tại !', 1);
                         }
                     }
                 }
@@ -170,7 +234,7 @@ class OrderController extends ApiController
                 $amount_price += $total_attributes;
 
                 if ($orderItem) {
-                    $orderItem->update(['quantity' => $value['quantity'],]);
+                    $orderItem->update(['quantity' => $value['quantity']]);
                 } else {
                     $order_item             = new OrderItem;
                     $order_item->order_id   = $order->id;
@@ -180,7 +244,7 @@ class OrderController extends ApiController
                     $order_item->save();
                 }
 
-                if(isset($value['attributes_value'])) {
+                if (isset($value['attributes_value'])) {
                     $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
                     foreach ($attribute_unique as $item) {
                         $attribute_item                = new OrderProductAttribute;
@@ -197,7 +261,6 @@ class OrderController extends ApiController
 
                 $calcualator = $amount_price * $value['quantity'];
                 $total += (int) $calcualator;
-
             }
 
             $order->total = $total;
@@ -225,7 +288,7 @@ class OrderController extends ApiController
 
         $this->repositoryOrder->findById($id);
 
-        $data  = $request->all();
+        $data = $request->all();
 
         if ($request->has('order_items')) {
             unset($data['order_items']);
