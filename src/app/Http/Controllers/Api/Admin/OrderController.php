@@ -41,11 +41,11 @@ class OrderController extends ApiController
     public function export(Request $request)
     {
         $user = $this->getAuthenticatedUser();
-        if (!$this->entity->ableToViewList($user)) {
-            throw new PermissionDeniedException();
-        }
+        // if (!$this->entity->ableToViewList($user)) {
+        //     throw new PermissionDeniedException();
+        // }
 
-        $this->validator->isValid($request, 'RULE_EXPORT');
+        $this->validatorOrder->isValid($request, 'RULE_EXPORT');
 
         $data   = $request->all();
         $orders = $this->getReportOrders($request);
