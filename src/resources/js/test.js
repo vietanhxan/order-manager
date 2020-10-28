@@ -1,2 +1,2 @@
-import "jquery/dist/jquery.min";
-import "jquery-validation/dist/jquery.validate.min";
+// import "jquery/dist/jquery.min";
+// import "jquery-validation/dist/jquery.validate.min";

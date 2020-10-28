@@ -26,7 +26,7 @@ class OrderController extends BaseController implements ViewOrderControllerInter
         $cart = getCart();
 
         $cartItemsCount = 0;
-
+        // dd($cart);
         if ($cart) {
             $cartItemsCount = $cart->cartItems->count();
         }
@@ -51,5 +51,32 @@ class OrderController extends BaseController implements ViewOrderControllerInter
     protected function viewData($cart, Request $request)
     {
         return [];
+    }
+
+    protected function paymentInfo(Request $request)
+    {
+        $cart = getCart();
+
+        $cartItemsCount = 0;
+        // dd($cart);
+        if ($cart) {
+            $cartItemsCount = $cart->cartItems->count();
+        }
+
+        if (!$cartItemsCount) {
+            return redirect('cart');
+        }
+
+        $custom_view_data = $this->viewData($cart, $request);
+
+        $view_model = new $this->ViewModel($cart);
+        $data       = array_merge($custom_view_data, $view_model->toArray());
+
+        return view($this->viewPaymentInfo(), $data);
+    }
+
+    protected function viewPaymentInfo()
+    {
+        return 'order::paymentInfo';
     }
 }

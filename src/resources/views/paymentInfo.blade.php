@@ -10,10 +10,6 @@
             .error {border:solid 1px red;}
         </style>
         <script src="/js/app.js"></script>
-        {{-- <script src="/node_modules/jquery/dist/jquery.js"></script> --}}
-        {{-- <script src="/node_modules/jquery-validation/dist/jquery.validate.js"></script> --}}
-        {{-- <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script> --}}
     </head>
     <body>
         <div class="container-fluid">
@@ -36,46 +32,9 @@
                         </div>
                         @endif
                         <ul id="progressbar">
-                            <li class="active" id="account">01 THÔNG TIN KHÁCH HÀNG</li>
-                            <li id="personal">02 THÔNG TIN THANH TOÁN</li>
+                            <li id="account">01 THÔNG TIN KHÁCH HÀNG</li>
+                            <li class="active" id="personal">02 THÔNG TIN THANH TOÁN</li>
                         </ul>
-                        <fieldset id="fs-info">
-                            <form id="form_info" class="form-card">
-                                {{-- <div id ="form1"> --}}
-                                    <h3>Thông tin khách hàng</h3>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="form-info">
-                                            <p>Họ</p>
-                                            <input id="first-name" type="text" name="first_name" value="{!! Auth::check() ? Auth::user()->first_name : '' !!}">
-                                        </div>
-                                        <div class="form-info">
-                                            <p>Tên (<b class="text-danger">*</b>)</p>
-                                            <input id="last-name" type="text" name="last_name" value="{!! Auth::check() ? Auth::user()->last_name : '' !!}">
-                                        </div>
-                                    </div>
-                                    <div class="address">
-                                        <p>Địa chỉ (<b class="text-danger">*</b>)</p>
-                                        <input id="address" type="text" name="address" value="{!! Auth::check() ? Auth::user()->address : '' !!}">
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="form-info">
-                                            <p>Email</p>
-                                            <input id="email" type="text" name="email" value="{!! Auth::check() ? Auth::user()->email : '' !!}">
-                                        </div>
-                                        <div class="form-info">
-                                            <p>Số điện thoại (<b class="text-danger">*</b>)</p>
-                                            <input id="phone-number" type="text" name="phone_number" value="{!! Auth::check() ? Auth::user()->phone_number : '' !!}">
-                                        </div>
-                                    </div>
-                                    <div class="address">
-                                        <p>Ghi chú</p>
-                                        <textarea name="note" placeholder="Note...."></textarea>
-                                    </div>
-                                    {{-- </div> --}}
-                                </form>
-                                <a href="/cart" class="btn-back"><b><i class="fa fa-arrow-left" aria-hidden="true"></i> Quay lại giỏ hàng</b></a>
-                                <a href="/payment-info"><input id="btn-continue" type="submit" name="next" class="next action-button" value="Tiếp tục" /></a>
-                            </fieldset>
                             <fieldset>
                             <form id="form_checkout" action="{{ route('order.create') }}" method="POST">
                                 <div class="form-card">
@@ -107,7 +66,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input type="button" name="previous" class="previous action-button-previous" value="Quay lại" />
+                                <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input type="button" name="previous" class="previous action-button-previous" value="Quay lại" onclick="backToOrder()" />
                                 <button type="button" class="action-button col-12 col-md-3" data-toggle="modal" data-target="#confirmModal">Thanh toán</button>
                             </fieldset>
                         </div>
@@ -164,5 +123,11 @@
             </form>
         </div>
     </body>
+
+<script>
+function backToOrder() {
+  window.location.href="/order-info";
+}
+</script>
 
 </html>

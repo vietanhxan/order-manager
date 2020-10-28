@@ -9,6 +9,7 @@ Route::prefix(config('order.namespace'))->middleware('web')->group(function () {
     Route::post('cart-items', 'VCComponent\Laravel\Order\Http\Controllers\Web\Cart\CreateCartItemController')->name('cart-items.create');
 
     Route::get('/order-info', 'VCComponent\Laravel\Order\Contracts\ViewOrderControllerInterface@index');
+    Route::get('/payment-info', 'VCComponent\Laravel\Order\Contracts\ViewOrderControllerInterface@paymentInfo');
 
     Route::post('/order-create', 'VCComponent\Laravel\Order\Http\Controllers\Web\Order\CreateOrderController@create')->name('order.create');
 
