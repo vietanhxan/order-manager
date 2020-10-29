@@ -24,23 +24,25 @@ class OrderController extends BaseController implements ViewOrderControllerInter
     public function index(Request $request)
     {
         $cart = getCart();
+        
+        $last_name = $request->session;
 
         $cartItemsCount = 0;
-        // dd($cart);
+        // dd($last_name);
         if ($cart) {
             $cartItemsCount = $cart->cartItems->count();
         }
-
+        
         if (!$cartItemsCount) {
             return redirect('cart');
         }
-
+        // dd($last_name);
         $custom_view_data = $this->viewData($cart, $request);
-
+        
         $view_model = new $this->ViewModel($cart);
         $data       = array_merge($custom_view_data, $view_model->toArray());
-
-        return view($this->view(), $data);
+        // dd($data);
+        return view($this->view(), $data)->with(compact($last_name));
     }
 
     protected function view()
@@ -68,10 +70,10 @@ class OrderController extends BaseController implements ViewOrderControllerInter
         }
 
         $custom_view_data = $this->viewData($cart, $request);
-
+        $_SESSION["last_name"] = $request->last_name;
         $view_model = new $this->ViewModel($cart);
         $data       = array_merge($custom_view_data, $view_model->toArray());
-
+          
         return view($this->viewPaymentInfo(), $data);
     }
 

@@ -1,3 +1,8 @@
+
+@php
+    $session = $_SESSION["last_name"];
+
+@endphp
 <!DOCTYPE html>
 <html>
     <head>
@@ -66,7 +71,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input type="button" name="previous" class="previous action-button-previous" value="Quay lại" onclick="backToOrder()" />
+                                <a href="{{route("order.back",["last_name" => $session])}}"> <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input type="button" name="previous" class="previous action-button-previous" value="Quay lại" /></a>
                                 <button type="button" class="action-button col-12 col-md-3" data-toggle="modal" data-target="#confirmModal">Thanh toán</button>
                             </fieldset>
                         </div>
@@ -114,7 +119,7 @@
                                 <h4 class="text-center mt-3">Xác nhận thanh toán hóa đơn ?</h4>
                                 <div class="d-flex justify-content-center mt-5">
                                     <input type="submit" class="btn btn-primary col-12 col-md-3"  value="Thanh toán !" />
-                                    <button type="button" class="btn btn-danger ml-5" data-dismiss="modal">Quay lại</button>
+                                <button type="button" class="btn btn-danger ml-5" data-dismiss="modal">Quay lại</button>
                                 </div>
                             </div>
                         </div>

@@ -39,9 +39,8 @@
                             <li class="active" id="account">01 THÔNG TIN KHÁCH HÀNG</li>
                             <li id="personal">02 THÔNG TIN THANH TOÁN</li>
                         </ul>
-                        <fieldset id="fs-info">
-                            <form id="form_info" class="form-card">
-                                {{-- <div id ="form1"> --}}
+                        <form id="form_checkout" action="{{ route('order.payment') }}" method="GET" class="form-card">
+                                <fieldset id="fs-info">
                                     <h3>Thông tin khách hàng</h3>
                                     <div class="d-flex justify-content-between">
                                         <div class="form-info">
@@ -50,7 +49,7 @@
                                         </div>
                                         <div class="form-info">
                                             <p>Tên (<b class="text-danger">*</b>)</p>
-                                            <input id="last-name" type="text" name="last_name" value="{!! Auth::check() ? Auth::user()->last_name : '' !!}">
+                                        <input id="last-name" type="text" name="last_name" value="{{ (isset($last_name)) ? $last_name : "" }}">
                                         </div>
                                     </div>
                                     <div class="address">
@@ -71,12 +70,12 @@
                                         <p>Ghi chú</p>
                                         <textarea name="note" placeholder="Note...."></textarea>
                                     </div>
-                                    {{-- </div> --}}
-                                </form>
-                                <a href="/cart" class="btn-back"><b><i class="fa fa-arrow-left" aria-hidden="true"></i> Quay lại giỏ hàng</b></a>
-                                <a href="/payment-info"><input id="btn-continue" type="submit" name="next" class="next action-button" value="Tiếp tục" /></a>
-                            </fieldset>
-                            <fieldset>
+                                    <a href="/cart" class="btn-back"><b><i class="fa fa-arrow-left" aria-hidden="true"></i> Quay lại giỏ hàng</b></a>
+                                    <input id="btn-continue" type="submit" name="next" class="action-button" value="Tiếp tục" />
+                                </fieldset>
+                            </form>
+                            
+                            {{-- <fieldset>
                             <form id="form_checkout" action="{{ route('order.create') }}" method="POST">
                                 <div class="form-card">
                                     <h3>Phương thức thanh toán</h3>
@@ -109,7 +108,8 @@
                                 </div>
                                 <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input type="button" name="previous" class="previous action-button-previous" value="Quay lại" />
                                 <button type="button" class="action-button col-12 col-md-3" data-toggle="modal" data-target="#confirmModal">Thanh toán</button>
-                            </fieldset>
+                            </fieldset> --}}
+                            
                         </div>
                     </div>
                     <div class="col-12 col-md-3 background">

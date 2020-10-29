@@ -83,6 +83,9 @@ $(document).ready(function() {
             phone_number: {
                 required: true,
                 number: true
+            },
+            email: {
+                email: true
             }
         },
         messages: {
@@ -95,52 +98,10 @@ $(document).ready(function() {
             phone_number: {
                 required: "Vui lòng nhập số điện thoại",
                 number: "Số điện thoại chỉ cho phép nhập số"
+            },
+            email: {
+                email: "Email sai định dạng"
             }
         }
     })
-
-    $('form input').on('keyup blur', function () { // fires on every keyup & blur
-        if ($('form').valid()) {                   // checks form for validity
-            $('#btn-continue').prop('disabled', false); // enables button
-
-            var formData = {
-                last_name: $("#last-name").val(),
-                address: $("#address").val(),
-                phone_number: $("#phone-number").val(),
-                first_name: $("#first-name").val(),
-                email: $("#email").val(),
-            }
-
-        } else {
-            $('#btn-continue').prop('disabled', 'disabled');   // disables button
-        }
-    });
-
-    $('form input').submit(function () {
-
-        // Get the Login Name value and trim it
-        // var name = $.trim($('#log').val());
-
-        var formData = {
-            last_name: $("#last-name").val(),
-            address: $("#address").val(),
-            phone_number: $("#phone-number").val(),
-            first_name: $("#first-name").val(),
-            email: $("#email").val(),
-        }
-        // Check if empty of not
-        if (formData  === null) {
-            alert('Hãy nhập các trường thông tin yêu cầu!');
-            return false;
-        }
-    });
-
-    $('.next').click(function () {
-        if ($('#last-name').val() == ('') || $("#address").val() == ('') || $("#phone-number").val() == ('')) 
-        {     
-            alert("Hãy nhập các trường thông tin bắt buộc!");
-            // checks form for validity
-            $('#btn-continue').removeAttr('href'); // enables button
-    
-        } 
 });
