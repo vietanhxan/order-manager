@@ -17,7 +17,7 @@
     </head>
     <body>
         <div class="container-fluid">
-            @csrf
+            {{-- @csrf --}}
             <div class="row">
                 <div class="form-order col-md-9">
                     <div class="container">
@@ -39,7 +39,8 @@
                             <li class="active" id="account">01 THÔNG TIN KHÁCH HÀNG</li>
                             <li id="personal">02 THÔNG TIN THANH TOÁN</li>
                         </ul>
-                        <form id="form_checkout" action="{{ route('order.payment') }}" method="GET" class="form-card">
+                        <form id="form_checkout" action="{{ route('order.payment') }}" method="POST" class="form-card">
+                            @csrf
                                 <fieldset id="fs-info">
                                     <h3>Thông tin khách hàng</h3>
                                     <div class="d-flex justify-content-between">
@@ -68,10 +69,10 @@
                                     </div>
                                     <div class="address">
                                         <p>Ghi chú</p>
-                                        <textarea name="note" placeholder="Note...."></textarea>
+                                        <textarea name="note" id="note" placeholder="Note...."></textarea>
                                     </div>
                                     <a href="/cart" class="btn-back"><b><i class="fa fa-arrow-left" aria-hidden="true"></i> Quay lại giỏ hàng</b></a>
-                                    <input id="btn-continue" type="submit" name="next" class="action-button" value="Tiếp tục" />
+                                    <input onclick="store()" id="btn-continue" type="submit" name="next" class="action-button" value="Tiếp tục" />
                                 </fieldset>
                             </form>
                             
@@ -164,5 +165,29 @@
             </form>
         </div>
     </body>
+
+<script>
+ function store(){
+     var inputEmail= document.getElementById("email");
+     localStorage.setItem("email", inputEmail.value);
+    }
+
+var first_name = $('#first-name').val();
+var last_name = $('#last-name').val();
+var address = $('#address').val();
+var email = $('#email').val();
+var phone_number = $('#phone-number').val();
+var note = $('#note').val();
+
+localStorage.setItem("first_name", first_name);
+localStorage.setItem("last_name", last_name);
+localStorage.setItem("address", address);
+localStorage.setItem("email", email);
+localStorage.setItem("phone_number", phone_number);
+localStorage.setItem("note", note);
+
+console.log(localStorage.getItem("email"));
+
+</script>
 
 </html>

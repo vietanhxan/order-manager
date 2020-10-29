@@ -100,7 +100,7 @@ $(document).ready(function() {
                 number: "Số điện thoại chỉ cho phép nhập số"
             },
             email: {
-                email: "Email sai định dạng"
+                email: "Email chưa đúng định dạng"
             }
         }
     })

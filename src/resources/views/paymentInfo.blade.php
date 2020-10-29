@@ -1,8 +1,8 @@
 
-@php
+{{-- @php
     $session = $_SESSION["last_name"];
 
-@endphp
+@endphp --}}
 <!DOCTYPE html>
 <html>
     <head>
@@ -18,7 +18,7 @@
     </head>
     <body>
         <div class="container-fluid">
-            @csrf
+            
             <div class="row">
                 <div class="form-order col-md-9">
                     <div class="container">
@@ -42,6 +42,7 @@
                         </ul>
                             <fieldset>
                             <form id="form_checkout" action="{{ route('order.create') }}" method="POST">
+                                @csrf
                                 <div class="form-card">
                                     <h3>Phương thức thanh toán</h3>
                                     <div class="row mt-4">
@@ -71,7 +72,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a href="{{route("order.back",["last_name" => $session])}}"> <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input type="button" name="previous" class="previous action-button-previous" value="Quay lại" /></a>
+                                {{-- <a href="{{route("order.back")}}"> <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input type="button" name="previous" class="previous action-button-previous" value="Quay lại" /></a> --}}
+                                <i class="fa fa-arrow-left icon-back" aria-hidden="true"></i><input onclick="goBack()" type="button" name="previous" class="previous action-button-previous" value="Quay lại" />
                                 <button type="button" class="action-button col-12 col-md-3" data-toggle="modal" data-target="#confirmModal">Thanh toán</button>
                             </fieldset>
                         </div>
@@ -130,8 +132,8 @@
     </body>
 
 <script>
-function backToOrder() {
-  window.location.href="/order-info";
+function goBack() {
+  window.history.back();
 }
 </script>
 

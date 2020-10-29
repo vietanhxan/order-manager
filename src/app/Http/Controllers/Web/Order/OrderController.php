@@ -70,7 +70,7 @@ class OrderController extends BaseController implements ViewOrderControllerInter
         }
 
         $custom_view_data = $this->viewData($cart, $request);
-        $_SESSION["last_name"] = $request->last_name;
+        // $_SESSION["last_name"] = $request->last_name;
         $view_model = new $this->ViewModel($cart);
         $data       = array_merge($custom_view_data, $view_model->toArray());
           
