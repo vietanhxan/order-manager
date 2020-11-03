@@ -7,13 +7,10 @@
         <link rel="stylesheet" type="text/css" media="screen" href="/css/app.css" />
         <style>
             .success{border: solid 1px blue;}
-            .error {border:solid 1px red;}
+            .error {color: #D8000C;}
+            label{margin: 5px 0 0 3px;}
         </style>
         <script src="/js/app.js"></script>
-        {{-- <script src="/node_modules/jquery/dist/jquery.js"></script> --}}
-        {{-- <script src="/node_modules/jquery-validation/dist/jquery.validate.js"></script> --}}
-        {{-- <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script> --}}
     </head>
     <body>
         <div class="container-fluid">
@@ -165,40 +162,5 @@
             </form>
         </div>
     </body>
-
-<script>
-//  function store(){
-//      var inputFirstName = document.getElementById("first-name");
-//      var inputLastName = document.getElementById("last-name");
-//      var inputAddress = document.getElementById("address");
-//      var inputEmail= document.getElementById("email");
-//      var inputPhoneNumber = document.getElementById("phone-number");
-//      var inputNote = document.getElementById("note");
-     
-//      localStorage.setItem("first_name", inputFirstName.value);
-//      localStorage.setItem("last_name", inputLastName.value);
-//      localStorage.setItem("address", inputAddress.value);
-//      localStorage.setItem("email", inputEmail.value);
-//      localStorage.setItem("phone_number", inputPhoneNumber.value);
-//      localStorage.setItem("note", inputNote.value);
-//     }
-
-// var first_name = $('#first-name').val();
-// var last_name = $('#last-name').val();
-// var address = $('#address').val();
-// var email = $('#email').val();
-// var phone_number = $('#phone-number').val();
-// var note = $('#note').val();
-
-// localStorage.setItem("first_name", first_name);
-// localStorage.setItem("last_name", last_name);
-// localStorage.setItem("address", address);
-// localStorage.setItem("email", email);
-// localStorage.setItem("phone_number", phone_number);
-// localStorage.setItem("note", note);
-
-// console.log(localStorage.getItem("email"));
-
-</script>
 
 </html>
