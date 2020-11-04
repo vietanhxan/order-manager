@@ -69,7 +69,7 @@
                                         <textarea name="note" id="note" placeholder="Note...."></textarea>
                                     </div>
                                     <a href="/cart" class="btn-back"><b><i class="fa fa-arrow-left" aria-hidden="true"></i> Quay lại giỏ hàng</b></a>
-                                    <input onclick="store()" id="btn-continue" type="submit" name="next" class="action-button" value="Tiếp tục" />
+                                    <input id="btn-continue" type="submit" name="next" class="action-button" value="Tiếp tục" />
                                 </fieldset>
                             </form>
                             
