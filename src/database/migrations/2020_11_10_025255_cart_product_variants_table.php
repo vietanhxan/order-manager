@@ -16,8 +16,8 @@ class CartProductVariantsTable extends Migration
         Schema::create('cart_product_variants', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('cart_item_id');
-            $table->unsignedBigInteger('variants_id');
-            $table->unsignedBigInteger('variants_type');
+            $table->unsignedBigInteger('variant_id');
+            $table->unsignedBigInteger('variant_type');
             $table->foreign('cart_item_id')->references('id')->on('cart_items')->onDelete('cascade');
         });
     }
