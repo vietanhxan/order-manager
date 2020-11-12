@@ -23,11 +23,6 @@ class DeleteUserOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::create('user_orders', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('order_id');
-            $table->timestamps();
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-        });
+        //
     }
 }
