@@ -5,6 +5,7 @@ namespace VCComponent\Laravel\Order\Entities;
 use Illuminate\Database\Eloquent\Model;
 use Prettus\Repository\Contracts\Transformable;
 use Prettus\Repository\Traits\TransformableTrait;
+use VCComponent\Laravel\Product\Entities\Variant;
 
 /**
  * Class CartProductVariant.

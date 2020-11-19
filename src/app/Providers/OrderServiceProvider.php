@@ -24,6 +24,8 @@ use VCComponent\Laravel\Order\Repositories\OrderMailRepositoryEloquent;
 use VCComponent\Laravel\Order\Repositories\OrderRepository;
 use VCComponent\Laravel\Order\Repositories\OrderRepositoryEloquent;
 use VCComponent\Laravel\Order\Services\GetCart;
+use VCComponent\Laravel\Order\Repositories\OrderProductVariantRepository;
+use VCComponent\Laravel\Order\Repositories\OrderProductVariantRepositoryEloquent;
 
 class OrderServiceProvider extends ServiceProvider
 {
@@ -35,6 +37,7 @@ class OrderServiceProvider extends ServiceProvider
         $this->app->bind(CartItemRepository::class, CartItemRepositoryEloquent::class);
         $this->app->bind(CartRepository::class, CartRepositoryEloquent::class);
         $this->app->bind(OrderMailRepository::class, OrderMailRepositoryEloquent::class);
+        $this->app->bind(OrderProductVariantRepository::class, OrderProductVariantRepositoryEloquent::class);
         $this->registerControllers();
     }
 
