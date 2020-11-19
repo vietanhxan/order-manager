@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class OrderProductVariantsTable extends Migration
+class AddOrderProductVariantTable extends Migration
 {
     /**
      * Run the migrations.
@@ -17,7 +17,8 @@ class OrderProductVariantsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('order_item_id');
             $table->unsignedBigInteger('variant_id');
-            $table->unsignedBigInteger('variant_type');
+            $table->string('variant_type')->nullable();
+            $table->timestamps();
             $table->foreign('order_item_id')->references('id')->on('order_items')->onDelete('cascade');
         });
     }
