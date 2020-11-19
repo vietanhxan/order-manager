@@ -4,6 +4,7 @@ namespace VCComponent\Laravel\Order\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use VCComponent\Laravel\Order\Traits\Helpers;
+use VCComponent\Laravel\Product\Entities\Product;
 
 class OrderItem extends Model
 {
