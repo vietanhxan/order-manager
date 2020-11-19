@@ -13,7 +13,7 @@ use VCComponent\Laravel\Order\Traits\HasCartProductVariants;
 class CartItem extends Model
 {
     use HasCartProductAttributes;
-    use HasCartProductVariants;
+    // use HasCartProductVariants;
 
     protected $fillable = [
         'cart_id',
