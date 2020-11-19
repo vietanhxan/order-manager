@@ -5,7 +5,7 @@ namespace VCComponent\Laravel\Order\Actions\Order;
 use VCComponent\Laravel\Order\Actions\Order\CreateOrderItemAction;
 use VCComponent\Laravel\Order\Entities\CartItem;
 use VCComponent\Laravel\Order\Entities\Order;
-use VCComponent\Laravel\Order\Entities\UserOrders;
+// use VCComponent\Laravel\Order\Entities\UserOrders;
 
 class CreateOrderAction
 {
@@ -26,9 +26,9 @@ class CreateOrderAction
             'order_id' => $order->id,
         ];
 
-        $user = UserOrders::firstOrCreate($order_id);
+        // $user = UserOrders::firstOrCreate($order_id);
 
-        Order::where('id', $order->id)->update(['user_id' => $user->id]);
+        // Order::where('id', $order->id)->update(['user_id' => $user->id]);
 
         $cart_id    = $data['cart_id'];
 
