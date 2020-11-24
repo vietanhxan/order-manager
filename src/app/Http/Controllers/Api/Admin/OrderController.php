@@ -106,7 +106,7 @@ class OrderController extends ApiController
         $query = $this->entity;
 
         $query = $this->applyConstraintsFromRequest($query, $request);
-        $query = $this->applySearchFromRequest($query, ['status'], $request);
+        $query = $this->applySearchFromRequest($query, ['phone_number', 'username', 'email', 'address'], $request, ['products' => ['name']]);
         $query = $this->applyOrderByFromRequest($query, $request);
 
         if ($request->has('status')) {
