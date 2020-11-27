@@ -10,7 +10,7 @@ use VCComponent\Laravel\Order\Transformers\OrderItemTransformer;
 class OrderTransformer extends TransformerAbstract
 {
     protected $availableIncludes = [
-        'orderItems',
+        'orderItems', 'variants'
     ];
 
     public function __construct($includes = [])
@@ -48,5 +48,11 @@ class OrderTransformer extends TransformerAbstract
     {
         $orderItems = $orders->orderItems;
         return $this->collection($orderItems, new OrderItemTransformer);
+    }
+
+    public function includeVariants(Order $orders)
+    {
+        $variant = $orders->variants;
+        return $this->collection($variant, new OrderItemVariantTransformer);
     }
 }

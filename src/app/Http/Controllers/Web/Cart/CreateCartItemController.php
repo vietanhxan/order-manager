@@ -8,6 +8,7 @@ use VCComponent\Laravel\Order\Actions\CartItem\CreateCartItemAction;
 use VCComponent\Laravel\Order\Actions\Cart\CreateCartAction;
 use VCComponent\Laravel\Order\Entities\CartItem;
 use VCComponent\Laravel\Order\Entities\CartProductAttribute;
+use VCComponent\Laravel\Order\Entities\CartProductVariant;
 use VCComponent\Laravel\Product\Entities\Product;
 use VCComponent\Laravel\Product\Entities\ProductAttribute;
 
@@ -34,21 +35,16 @@ class CreateCartItemController extends BaseController
             'price'      => $product_price,
         ];
 
-        if ($attributes != null) {
-            $data['attributes'] = $attributes;
-            $data['price']      = $this->hasAttributes($data);
-        }
         $cart_item = $this->action->execute($data, $request);
 
         if ($attributes != null) {
             foreach ($attributes as $key => $attribute) {
                 $data_attributes = [
                     'cart_item_id' => (int) $cart_item->id,
-                    'product_id'   => (int) $request->get('product_id'),
-                    'value_id'     => (int) $attribute,
+                    'variant_id'   => (int) $attribute,
+                    'variant_type' => $request->has('product_type') ? $request->get('product_type') : 'null'
                 ];
-
-                CartProductAttribute::firstOrCreate($data_attributes);
+                CartProductVariant::firstOrCreate($data_attributes);
             }
         }
 
@@ -80,7 +76,9 @@ class CreateCartItemController extends BaseController
         $attributes = array_diff_assoc($data, $cart_data);
 
         unset($attributes['_token']);
-
+        if(isset($attributes['product_type'])){
+            unset($attributes['product_type']);
+        }
         return $attributes;
     }
 

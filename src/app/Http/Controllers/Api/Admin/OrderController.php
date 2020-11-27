@@ -9,24 +9,32 @@ use VCComponent\Laravel\Export\Services\Export\Export;
 use VCComponent\Laravel\Order\Entities\OrderItem;
 use VCComponent\Laravel\Order\Entities\OrderMail;
 use VCComponent\Laravel\Order\Entities\OrderProductAttribute;
+use VCComponent\Laravel\Order\Entities\OrderProductVariant;
 use VCComponent\Laravel\Order\Events\AddAttributesEvent;
 use VCComponent\Laravel\Order\Mail\MailNotify;
+use VCComponent\Laravel\Order\Repositories\OrderProductVariantRepository;
 use VCComponent\Laravel\Order\Repositories\OrderRepository;
 use VCComponent\Laravel\Order\Transformers\OrderTransformer;
+use VCComponent\Laravel\Order\Transformers\OrderItemVariantTransformer;
 use VCComponent\Laravel\Order\Validators\OrderValidator;
 use VCComponent\Laravel\Product\Entities\Product;
+use VCComponent\Laravel\Product\Repositories\ProductRepository;
 use VCComponent\Laravel\Vicoders\Core\Controllers\ApiController;
 use VCComponent\Laravel\Vicoders\Core\Exceptions\PermissionDeniedException;
+use VCComponent\Laravel\Product\Entities\Variant;
 
 class OrderController extends ApiController
 {
     protected $repositoryOrder;
+    protected $repositoryOrderProductVariant;
     protected $validatorOrder;
+    protected $productRepository;
 
-    public function __construct(OrderRepository $repositoryOrder, OrderValidator $validatorOrder)
+    public function __construct(OrderRepository $repositoryOrder, OrderValidator $validatorOrder, OrderProductVariantRepository $repositoryOrderProductVariant, ProductRepository $productRepository)
     {
         $this->repositoryOrder = $repositoryOrder;
         $this->entity          = $repositoryOrder->getEntity();
+        $this->repositoryOrderProductVariant = $repositoryOrderProductVariant;
         $this->validatorOrder  = $validatorOrder;
         $this->transformer     = OrderTransformer::class;
 
@@ -196,7 +204,6 @@ class OrderController extends ApiController
             }
 
             $order = $this->repositoryOrder->create($data);
-
             $total = 0;
             foreach ($request->get('order_items') as $value) {
                 $product = $products->first(function ($item, $key) use ($value) {
@@ -204,35 +211,34 @@ class OrderController extends ApiController
                 });
 
                 $orderItem = OrderItem::where('product_id', $product->id)->where('order_id', $order->id)->first();
-
+                
                 $amount_price     = $product->price;
                 $total_attributes = 0;
-                if (isset($value['attributes_value'])) {
-                    $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
-
-                    foreach ($attribute_unique as $attribute_item) {
-                        $attribute_chose = $product->attributesValue->search(function ($q) use ($attribute_item) {
-                            return $q->id === $attribute_item['value_id'];
-                        });
-
-                        if ($attribute_chose !== false) {
-                            $attributes_exists = $product->attributesValue->get($attribute_chose);
-                            if ($attributes_exists->type === 2) {
-                                $total_attr = -$attributes_exists->price;
-                            } else if ($attributes_exists->type === 3) {
-                                $total_attr = 0;
-                            } else {
-                                $total_attr = $attributes_exists->price;
-                            }
-                            $total_attributes += $total_attr;
-                        } else {
-                            throw new \Exception('Thuộc tính có id = ' . $attribute_item['value_id'] . ' không tồn tại !', 1);
-                        }
-                    }
-                }
-
-                $amount_price += $total_attributes;
-
+                // if (isset($value['attributes_value'])) {
+                //     $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
+                //     // dd($attribute_unique);
+                //     foreach ($attribute_unique as $attribute_item) {
+                //         $attribute_chose = $product->attributesValue->search(function ($q) use ($attribute_item) {
+                //             return $q->id === $attribute_item['value_id'];
+                //         });
+                        
+                //         if ($attribute_chose !== false) {
+                //             $attributes_exists = $product->attributesValue->get($attribute_chose);
+                //             if ($attributes_exists->type === 2) {
+                //                 $total_attr = -$attributes_exists->price;
+                //             } else if ($attributes_exists->type === 3) {
+                //                 $total_attr = 0;
+                //             } else {
+                //                 $total_attr = $attributes_exists->price;
+                //             }
+                //             $total_attributes += $total_attr;
+                //         } else {
+                //             throw new \Exception('Thuộc tính có id = ' . $attribute_item['value_id'] . ' không tồn tại !', 1);
+                //         }
+                //     }
+                // }
+                // $amount_price += $total_attributes;
+                
                 if ($orderItem) {
                     $orderItem->update(['quantity' => $value['quantity']]);
                 } else {
@@ -244,6 +250,22 @@ class OrderController extends ApiController
                     $order_item->save();
                 }
 
+                if (isset($value['variants'])) {
+                    foreach ($value['variants'] as $variant) {
+                        $variant_by_id    = Variant::where('id', $variant['variant_id'])->first();
+                        // dd($variant_by_id->type);
+                        $order_product_variant = new OrderProductVariant;
+                        $order_product_variant->order_item_id = $order_item->id;
+                        $order_product_variant->variant_id    = $variant_by_id->id;
+                        // dd($order_product_variant->variant_id);
+                        $order_product_variant->variant_type  = $variant_by_id->type;
+                        $order_product_variant->save();
+                    }
+                    // foreach ($value['variants'] as variant) {
+                    //     select + from variants where variant[variant_id]-> fisrt() -> null ? "variant khong ton tai";
+                    //     dd($value['variants']);
+                    // }
+                }
                 if (isset($value['attributes_value'])) {
                     $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
                     foreach ($attribute_unique as $item) {

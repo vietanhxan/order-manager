@@ -5,14 +5,14 @@ namespace VCComponent\Laravel\Order\Actions\Order;
 use VCComponent\Laravel\Order\Actions\Order\CreateOrderItemAction;
 use VCComponent\Laravel\Order\Entities\CartItem;
 use VCComponent\Laravel\Order\Entities\Order;
-// use VCComponent\Laravel\Order\Entities\UserOrders;
 
 class CreateOrderAction
 {
-    public function __construct(CreateOrderItemAction $createItem, CreateOrderItemAttributesAction $createAttribute)
+    public function __construct(CreateOrderItemAction $createItem, CreateOrderItemAttributesAction $createAttribute, CreateOrderVariantsAction $createVariant)
     {
         $this->createItem      = $createItem;
         $this->createAttribute = $createAttribute;
+        $this->createVariant   = $createVariant;
     }
 
     public function execute(array $data = [])
@@ -26,10 +26,6 @@ class CreateOrderAction
             'order_id' => $order->id,
         ];
 
-        // $user = UserOrders::firstOrCreate($order_id);
-
-        // Order::where('id', $order->id)->update(['user_id' => $user->id]);
-
         $cart_id    = $data['cart_id'];
 
         $cart_items = CartItem::where('cart_id', $cart_id)->get();
@@ -42,9 +38,9 @@ class CreateOrderAction
                 'order_id'   => $order->id,
             ];
             $order_item = $this->createItem->excute($data);
-
-            foreach ($cart_item->cartProductAttributes as $item) {
-                $this->createAttribute->excute($order_item, $item);
+            
+            foreach ($cart_item->cartProductVariants as $variant) {
+                $this->createVariant->excute($order_item, $variant);
             }
 
         }

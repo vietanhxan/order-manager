@@ -29,6 +29,6 @@ class OrderItem extends Model
 
     public function orderItemVariant()
     {
-        return $this->hasOne(OrderProductVariant::class);
+        return $this->hasMany(OrderProductVariant::class);
     }
 }
