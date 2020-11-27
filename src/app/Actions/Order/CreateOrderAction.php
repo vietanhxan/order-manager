@@ -17,16 +17,16 @@ class CreateOrderAction
 
     public function execute(array $data = [])
     {
-        $attributes = collect($data)
-            ->only(['phone_number', 'total'])
-            ->toArray();
 
-        $order    = Order::firstOrCreate($attributes, $data);
+        $order    = Order::create($data);
+
         $order_id = [
             'order_id' => $order->id,
         ];
 
+
         $cart_id    = $data['cart_id'];
+
 
         $cart_items = CartItem::where('cart_id', $cart_id)->get();
 
