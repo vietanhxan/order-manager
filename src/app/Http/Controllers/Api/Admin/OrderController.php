@@ -211,33 +211,9 @@ class OrderController extends ApiController
                 });
 
                 $orderItem = OrderItem::where('product_id', $product->id)->where('order_id', $order->id)->first();
-                
+
                 $amount_price     = $product->price;
                 $total_attributes = 0;
-                // if (isset($value['attributes_value'])) {
-                //     $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
-                //     // dd($attribute_unique);
-                //     foreach ($attribute_unique as $attribute_item) {
-                //         $attribute_chose = $product->attributesValue->search(function ($q) use ($attribute_item) {
-                //             return $q->id === $attribute_item['value_id'];
-                //         });
-                        
-                //         if ($attribute_chose !== false) {
-                //             $attributes_exists = $product->attributesValue->get($attribute_chose);
-                //             if ($attributes_exists->type === 2) {
-                //                 $total_attr = -$attributes_exists->price;
-                //             } else if ($attributes_exists->type === 3) {
-                //                 $total_attr = 0;
-                //             } else {
-                //                 $total_attr = $attributes_exists->price;
-                //             }
-                //             $total_attributes += $total_attr;
-                //         } else {
-                //             throw new \Exception('Thuộc tính có id = ' . $attribute_item['value_id'] . ' không tồn tại !', 1);
-                //         }
-                //     }
-                // }
-                // $amount_price += $total_attributes;
                 
                 if ($orderItem) {
                     $orderItem->update(['quantity' => $value['quantity']]);
@@ -253,27 +229,17 @@ class OrderController extends ApiController
                 if (isset($value['variants'])) {
                     foreach ($value['variants'] as $variant) {
                         $variant_by_id    = Variant::where('id', $variant['variant_id'])->first();
-                        // dd($variant_by_id->type);
-                        $order_product_variant = new OrderProductVariant;
-                        $order_product_variant->order_item_id = $order_item->id;
-                        $order_product_variant->variant_id    = $variant_by_id->id;
-                        // dd($order_product_variant->variant_id);
-                        $order_product_variant->variant_type  = $variant_by_id->type;
-                        $order_product_variant->save();
-                    }
-                    // foreach ($value['variants'] as variant) {
-                    //     select + from variants where variant[variant_id]-> fisrt() -> null ? "variant khong ton tai";
-                    //     dd($value['variants']);
-                    // }
-                }
-                if (isset($value['attributes_value'])) {
-                    $attribute_unique = collect($value['attributes_value'])->unique('attribute_id');
-                    foreach ($attribute_unique as $item) {
-                        $attribute_item                = new OrderProductAttribute;
-                        $attribute_item->order_item_id = $order_item->id;
-                        $attribute_item->product_id    = $product->id;
-                        $attribute_item->value_id      = $item['value_id'];
-                        $attribute_item->save();
+                        if (isset($variant_by_id)) {
+                            $order_product_variant = new OrderProductVariant;
+                            $order_product_variant->order_item_id = $order_item->id;
+                            $order_product_variant->variant_id    = $variant_by_id->id;
+                            $order_product_variant->variant_type  = $variant_by_id->type;
+                            $order_product_variant->save();
+                        }
+                        else {
+                            $order->delete();
+                            throw new \Exception("Sản phẩm {$product->name} không tồn tại variant này", 1);
+                        }
                     }
                 }
 
@@ -292,7 +258,6 @@ class OrderController extends ApiController
 
             event(new AddAttributesEvent($order, $attributes_order));
         }
-
         $this->entity->sendMailOrder($order);
 
         if ($request->has('includes')) {

@@ -11,6 +11,8 @@ use VCComponent\Laravel\Order\Transformers\OrderTransformer;
 use VCComponent\Laravel\Order\Validators\OrderValidator;
 use VCComponent\Laravel\Product\Entities\Product;
 use VCComponent\Laravel\Vicoders\Core\Controllers\ApiController;
+use VCComponent\Laravel\Product\Entities\Variant;
+use VCComponent\Laravel\Order\Entities\OrderProductVariant;
 
 class OrderController extends ApiController
 {
@@ -137,6 +139,21 @@ class OrderController extends ApiController
                     $order_item->price      = $amount_price;
                     $order_item->quantity   = $value['quantity'];
                     $order_item->save();
+                }
+
+                if (isset($value['variants'])) {
+                    foreach ($value['variants'] as $variant) {
+                        $variant_by_id    = Variant::where('id', $variant['variant_id'])->first();
+                        $order_product_variant = new OrderProductVariant;
+                        $order_product_variant->order_item_id = $order_item->id;
+                        $order_product_variant->variant_id    = $variant_by_id->id;
+                        $order_product_variant->variant_type  = $variant_by_id->type;
+                        $order_product_variant->save();
+                    }
+                }
+                else {
+                    $order->delete();
+                    throw new \Exception("Sản phẩm {$product->name} không tồn tại variant này", 1);
                 }
 
                 if(isset($value['attributes_value'])) {
